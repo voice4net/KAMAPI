@@ -29,11 +29,7 @@ apt-get install openssl -y
 
 a2enmod ssl
 
-service apache2 restart
-
 a2ensite default-ssl
-
-service apache2 restart
 
 a2enmod headers
 
