@@ -2,11 +2,10 @@
 
 #This script should be executed with root previlage
 #Assumptions
-#1. Assumes required files are available in /tmp/v4Deploy
-#2. Underlying os is debian
-#3. No other sites are running apart from kamapi
+#1. Underlying os is debian
+#2. No other sites are running apart from kamapi.
 
-#usage v4kamAPIDeploy.sh -p testpsd
+#usage sudo ./v4kamAPIDeploy.sh -p testpsd
 
 passphrase=""
 
