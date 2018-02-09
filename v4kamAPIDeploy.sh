@@ -18,6 +18,8 @@ while getopts ":p:" opt; do
   esac
 done
 
+sudo su
+
 apt-get update -y
 
 apt-get install apache2 -y
