@@ -4,6 +4,7 @@
 #Assumptions
 #1. Underlying os is debian
 #2. No other sites are running apart from kamapi.
+#3. Enter credentials for mysql kamailio user
 
 #usage sudo ./v4kamAPIDeploy.sh -p testpsd
 
@@ -16,6 +17,13 @@ while getopts ":p:" opt; do
       ;;
   esac
 done
+
+if [ -z "$passphrase" ]
+then
+      read -p 'Enter Mysql kamailio user password: ' passphrase
+fi
+
+mysql -ukamailio -p$passphrase kamailio  -e"quit" || exit 1 
 
 apt-get update -y
 
