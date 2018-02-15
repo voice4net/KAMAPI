@@ -26,7 +26,10 @@ fi
 
 mysql -ukamailio -p$passphrase kamailio  -e"quit" || exit 1 
 
-printf '\n\n# ----- ctl params ----- #\nmodparam("ctl", "mode", 07701)\nmodparam("ctl", "mode", 0770)' >> /etc/kamailio/kamailio.cfg
+if ! grep -q 'modparam("ctl", "mode"' /etc/kamailio/kamailio.cfg
+then
+	printf '\n\n# ----- ctl params ----- #\nmodparam("ctl", "mode", 0770)\nmodparam("ctl", "user", "kamailio")\nmodparam("ctl", "group", "kamailio")' >> /etc/kamailio/kamailio.cfg    
+fi
 
 cp kamailio_files/kamailio.service /lib/systemd/system/
 
