@@ -5,6 +5,7 @@
 #1. Underlying os is debian
 #2. No other sites are running apart from kamapi.
 #3. Enter credentials for mysql kamailio user
+#4. ignore this error :	Failed to restart kamailio.service: Unit rtpengine.service failed to load: No such file or directory.
 
 #usage sudo ./v4kamAPIDeploy.sh -p testpsd
 
@@ -24,6 +25,12 @@ then
 fi
 
 mysql -ukamailio -p$passphrase kamailio  -e"quit" || exit 1 
+
+printf '\n\n# ----- ctl params ----- #\nmodparam("ctl", "mode", 07701)\nmodparam("ctl", "mode", 0770)' >> /etc/kamailio/kamailio.cfg
+
+cp kamailio_files/kamailio.service /lib/systemd/system/
+
+systemctl restart kamailio
 
 apt-get update -y
 
@@ -58,14 +65,6 @@ mysql -ukamailio -p$passphrase kamailio < configuringKAMTables.sql
 usermod -a -G kamailio www-data
 
 chown kamailio:kamailio /var/run/kamailio
-
-chmod g+s /var/run/kamailio
-
-setfacl -d -m g::rwx /var/run/kamailio
-
-chmod 630 /var/run/kamailio/ -R
-
-chmod 630 /var/run/kamailio/kamailio_ctl
 
 service apache2 restart
 
