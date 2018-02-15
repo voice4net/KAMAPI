@@ -3,8 +3,8 @@
 /*
 URL: https://uchkam.epbx.com/kamapi/addresses.php
 Header            :  Accept: application/json 
-Post Data Format  : [{"ip_addr":"123.123.123.12"}]
-Put Data Format   : {"id":21,grp:1,"ip_addr":"123.123.123.12","mask":32,"port":0,"tag":"sample tag"} 
+Post Data Format  : [{"ip_addr":"127.0.0.1", "description":"localhost"}]
+Put Data Format   : {"id":21,grp:1,"ip_addr":"123.123.123.12","mask":32,"port":0,"tag":"sample tag","description":"example"} 
 Delete Data Format: {"id":21}
 */
 
@@ -31,7 +31,7 @@ class AddressesHandler extends SimpleRest
         } else {
             $statusCode = 200;
         }
-        $sql = "SELECT id, grp, ip_addr, mask, port, tag FROM address;";
+        $sql = "SELECT id, grp, ip_addr, mask, port, tag, description FROM address;";
         $result = $conn->query($sql);
         $rows = array();
         while ($r = mysqli_fetch_assoc($result)) {
@@ -113,7 +113,7 @@ class AddressesHandler extends SimpleRest
         } else {
             $statusCode = 200;
         }
-        $stmt = $conn->prepare("SELECT id, grp, ip_addr, mask, port, tag FROM address WHERE id=?");
+        $stmt = $conn->prepare("SELECT id, grp, ip_addr, mask, port, tag, description FROM address WHERE id=?");
         $stmt->bind_param('s', $id);
         $stmt->execute();
         $result = $db->get_result($stmt);
@@ -157,12 +157,13 @@ class AddressesHandler extends SimpleRest
         */
         if (isset($post_data["ip_addr"])) {
             $ip_addr = $post_data["ip_addr"];
+            $description = $post_data["description"];
             if ($ip_addr == "" or $ip_addr == " ") {
-                $this->invalid_data_format('[{"ip_addr":"127.0.0.1"}]');
+                $this->invalid_data_format('[{"ip_addr":"127.0.0.1", "description":"localhost"}]');
                 return;
             }
         } else {
-            $this->invalid_data_format('[{"ip_addr":"127.0.0.1"}]');
+            $this->invalid_data_format('[{"ip_addr":"127.0.0.1", "description":"localhost"}]');
             return;
         }
         $db = new DB();
@@ -179,8 +180,8 @@ class AddressesHandler extends SimpleRest
         } else {
             $statusCode = 200;
         }
-        $stmt = $conn->prepare("call insert_address(?)");
-        $stmt->bind_param('s', $ip_addr);
+        $stmt = $conn->prepare("call insert_address(?,?)");
+        $stmt->bind_param('ss', $ip_addr,$description);
         $stmt->execute();
         $result = $db->get_result($stmt);
         $conn->close();
@@ -227,11 +228,12 @@ class AddressesHandler extends SimpleRest
 
             if (isset($post_data["ip_addr"])) {
                 $ip_addr = $post_data["ip_addr"];
+                $description = $post_data["description"];
                 if ($ip_addr == "" or $ip_addr == " ") {
                     continue;
                 }
             } else {
-                $this->invalid_data_format('[{"ip_addr":"127.0.0.1"}, {"ip_addr":"127.0.0.1"}]');
+                $this->invalid_data_format('[{"ip_addr":"127.0.0.1", "description":"localhost"},{"ip_addr":"127.0.0.1", "description":"localhost"}]');
                 return;
             }
             $db = new DB();
@@ -246,8 +248,8 @@ class AddressesHandler extends SimpleRest
                 echo $response;
                 return;
             }
-            $stmt = $conn->prepare("call insert_address(?)");
-            $stmt->bind_param('s', $ip_addr);
+            $stmt = $conn->prepare("call insert_address(?,?)");
+            $stmt->bind_param('ss', $ip_addr,$description);
             $stmt->execute();
             $result = $db->get_result($stmt);
             $conn->close();
@@ -284,19 +286,21 @@ class AddressesHandler extends SimpleRest
         4. If ip_addr is valid and id is invalid then function doesn't update or insert data(you have to use post)
         */
         $rows = array();
-        if ((isset($put_data["id"])) and ((isset($put_data["ip_addr"])) or (isset($put_data["grp"])) or (isset($put_data["mask"])) or (isset($put_data["port"])) or (isset($put_data["tag"])))) {
+        if ((isset($put_data["id"])) and ((isset($put_data["ip_addr"])) or (isset($put_data["grp"])) or (isset($put_data["mask"])) or (isset($put_data["port"])) or (isset($put_data["tag"])) or (isset($put_data["description"])))) {
             $id = $put_data["id"];
             $ip_addr = $put_data["ip_addr"];
             $grp = $put_data["grp"];
             $mask = $put_data["mask"];
             $port = $put_data["port"];
             $tag = $put_data["tag"];
+            $description = $put_data["description"];
+
             if ((($ip_addr == "" or $ip_addr == " ") and (!is_null($ip_addr))) or $id <= 0) {
-                $this->invalid_data_format('{"id":4,"ip_addr":"127.0.0.1"}');
+                $this->invalid_data_format('{"id":21,grp:1,"ip_addr":"123.123.123.12","mask":32,"port":0,"tag":"sample tag","description":"example"}');
                 return;
             }
         } else {
-            $this->invalid_data_format('{"id":4,"ip_addr":"127.0.0.1"}');
+            $this->invalid_data_format('{"id":21,grp:1,"ip_addr":"123.123.123.12","mask":32,"port":0,"tag":"sample tag","description":"example"}');
             return;
         }
         $db = new DB();
@@ -313,8 +317,8 @@ class AddressesHandler extends SimpleRest
         } else {
             $statusCode = 200;
         }
-        $stmt = $conn->prepare("call update_address(?,?,?,?,?,?)");
-        $stmt->bind_param('iisiis', $id, $grp, $ip_addr, $mask, $port, $tag);
+        $stmt = $conn->prepare("call update_address(?,?,?,?,?,?,?)");
+        $stmt->bind_param('iisiiss', $id, $ip_addr, $mask, $port, $tag,$description);
         $stmt->execute();
         $result = $db->get_result($stmt);
         $conn->close();

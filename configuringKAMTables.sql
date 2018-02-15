@@ -61,6 +61,8 @@ CREATE TABLE IF NOT EXISTS address (
   PRIMARY KEY (id)
 );
 
+ALTER TABLE address ADD COLUMN description VARCHAR(100) NULL;
+
 -- Domain Attributes
 CREATE TABLE IF NOT EXISTS domain_attrs (
   id            INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -268,7 +270,7 @@ DELIMITER ;
 
 DROP PROCEDURE IF EXISTS insert_address;
 DELIMITER //
-CREATE PROCEDURE insert_address(IN ip_addr_value VARCHAR(50))
+CREATE PROCEDURE insert_address(IN ip_addr_value VARCHAR(50), IN description_value VARCHAR(100))
   BEGIN
     DECLARE address_exists INT;
     SELECT count(1)
@@ -277,7 +279,7 @@ CREATE PROCEDURE insert_address(IN ip_addr_value VARCHAR(50))
     WHERE ip_addr = ip_addr_value;
     IF (address_exists = 0)
     THEN
-      INSERT INTO address (ip_addr) VALUES (ip_addr_value);
+      INSERT INTO address (ip_addr,description) VALUES (ip_addr_value,description_value);
 
       SELECT
         id,
@@ -285,7 +287,8 @@ CREATE PROCEDURE insert_address(IN ip_addr_value VARCHAR(50))
         ip_addr,
         mask,
         port,
-        tag
+        tag,
+        description
       FROM address
       WHERE id = (SELECT LAST_INSERT_ID());
     END IF;
@@ -293,12 +296,14 @@ CREATE PROCEDURE insert_address(IN ip_addr_value VARCHAR(50))
 DELIMITER ;
 
 
+
 -- Address Updation
 
 DROP PROCEDURE IF EXISTS update_address;
 DELIMITER //
 CREATE PROCEDURE update_address(IN id_value   INT(10), IN grp_value INT(11), IN ip_addr_value VARCHAR(50),
-                                IN mask_value INT(11), IN port_value SMALLINT(5), IN tag_value VARCHAR(64))
+                                IN mask_value INT(11), IN port_value SMALLINT(5), IN tag_value VARCHAR(64),
+                                IN description_value VARCHAR(100))
   BEGIN
     DECLARE address_exists INT;
     SELECT count(1)
@@ -309,7 +314,7 @@ CREATE PROCEDURE update_address(IN id_value   INT(10), IN grp_value INT(11), IN 
     THEN
       UPDATE address
       SET ip_addr = coalesce(ip_addr_value, ip_addr), grp = coalesce(grp_value, grp), mask = coalesce(mask_value, mask),
-        port      = coalesce(port_value, port), tag = coalesce(tag_value, tag)
+        port = coalesce(port_value, port), tag = coalesce(tag_value, tag), description=coalesce(description_value, description)
       WHERE id = id_value;
 
       SELECT
@@ -318,7 +323,8 @@ CREATE PROCEDURE update_address(IN id_value   INT(10), IN grp_value INT(11), IN 
         ip_addr,
         mask,
         port,
-        tag
+        tag,
+        description
       FROM address
       WHERE id = id_value;
     END IF;
