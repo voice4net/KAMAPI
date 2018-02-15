@@ -318,7 +318,7 @@ class AddressesHandler extends SimpleRest
             $statusCode = 200;
         }
         $stmt = $conn->prepare("call update_address(?,?,?,?,?,?,?)");
-        $stmt->bind_param('iisiiss', $id, $ip_addr, $mask, $port, $tag,$description);
+        $stmt->bind_param('iisiiss', $id, $grp, $ip_addr, $mask, $port, $tag, $description);
         $stmt->execute();
         $result = $db->get_result($stmt);
         $conn->close();
