@@ -33,7 +33,9 @@ fi
 
 cp kamailio_files/kamailio.service /lib/systemd/system/
 
-systemctl restart kamailio
+kamctl stop
+
+kamctl start
 
 apt-get update -y
 
