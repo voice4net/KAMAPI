@@ -26,7 +26,7 @@ fi
 
 mysql -ukamailio -p$passphrase kamailio  -e"quit" || exit 1 
 
-if ! grep -q 'modparam("ctl", "mode"' /etc/kamailio/kamailio.cfg
+if ! grep -q 'modparam("ctl"' /etc/kamailio/kamailio.cfg
 then
 	sed -i 's/####### Routing Logic ########/# ----- ctl params ----- #\nmodparam("ctl","mode",0770)\nmodparam("ctl","use r","kamailio")\nmodparam("ctl","group","kamailio")\n\n\0/' /etc/kamailio/kamailio.cfg 
 fi
